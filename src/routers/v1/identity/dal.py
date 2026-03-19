@@ -1,7 +1,9 @@
 """Data Access Layer for identity operations."""
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.routers.v1.identity.models import User
 from src.routers.v1.identity.schemas import UserCreate
 
 
@@ -31,51 +33,37 @@ class UserDAL:
 
     async def create(self, user_in: UserCreate) -> dict:
         """Create new user with hashed password."""
-        # TODO: Implement with ORM model
-        # new_user = User(
-        #     username=user_in.username,
-        #     email=user_in.email,
-        #     password_hash=self.hash_password(user_in.password),
-        #     roles=["user"],
-        # )
-        # self.session.add(new_user)
-        # await self.session.flush()
-        # return {
-        #     "id": new_user.id,
-        #     "username": new_user.username,
-        #     "email": new_user.email,
-        #     "roles": new_user.roles,
-        # }
-        return {
-            "id": 1,
-            "username": user_in.username,
-            "email": user_in.email,
-            "roles": ["user"],
-        }
+        new_user = User(
+            username=user_in.username,
+            email=user_in.email,
+            password_hash=self.hash_password(user_in.password),
+            is_active=True,
+        )
+        self.session.add(new_user)
+        await self.session.flush()
+        return new_user.to_dict() | {"id": new_user.id}
 
     async def get_by_username(self, username: str) -> dict | None:
         """Get user by username."""
-        # TODO: Implement with ORM model
-        # stmt = select(User).where(User.username == username)
-        # result = await self.session.execute(stmt)
-        # user = result.scalar_one_or_none()
-        # return user.to_dict() if user else None
+        stmt = select(User).where(User.username == username, User.is_active == True)
+        result = await self.session.execute(stmt)
+        user = result.scalar_one_or_none()
+        if user:
+            user_dict = user.to_dict()
+            user_dict["password_hash"] = user.password_hash
+            return user_dict
         return None
 
     async def get_by_email(self, email: str) -> dict | None:
         """Get user by email."""
-        # TODO: Implement with ORM model
-        # stmt = select(User).where(User.email == email)
-        # result = await self.session.execute(stmt)
-        # user = result.scalar_one_or_none()
-        # return user.to_dict() if user else None
-        return None
+        stmt = select(User).where(User.email == email, User.is_active == True)
+        result = await self.session.execute(stmt)
+        user = result.scalar_one_or_none()
+        return user.to_dict() | {"id": user.id} if user else None
 
     async def get_by_id(self, user_id: int) -> dict | None:
         """Get user by ID."""
-        # TODO: Implement with ORM model
-        # stmt = select(User).where(User.id == user_id)
-        # result = await self.session.execute(stmt)
-        # user = result.scalar_one_or_none()
-        # return user.to_dict() if user else None
-        return None
+        stmt = select(User).where(User.id == user_id, User.is_active == True)
+        result = await self.session.execute(stmt)
+        user = result.scalar_one_or_none()
+        return user.to_dict() | {"id": user.id} if user else None

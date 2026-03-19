@@ -1,19 +1,50 @@
 """Identity schemas."""
 
+from typing import List
+
 from pydantic import BaseModel, EmailStr, Field
 
 
 class UserBase(BaseModel):
-    username: str = Field(..., min_length=3, description="Username")
+    """Base user model."""
+
+    username: str = Field(..., min_length=3, max_length=50, description="Username")
     email: EmailStr = Field(..., description="Email address")
 
 
 class UserCreate(UserBase):
-    password: str = Field(..., min_length=8, description="Password")
+    """Schema for user creation."""
+
+    password: str = Field(..., min_length=8, max_length=255, description="Password")
 
 
 class UserResponse(UserBase):
-    id: int
+    """User response schema."""
+
+    id: int = Field(..., description="User ID")
+    roles: List[str] = Field(default=["user"], description="User roles")
 
     class Config:
         from_attributes = True
+
+
+class LoginRequest(BaseModel):
+    """Login request."""
+
+    username: str = Field(..., min_length=1, description="Username")
+    password: str = Field(..., min_length=1, description="Password")
+
+
+class LoginResponse(BaseModel):
+    """Login response with tokens."""
+
+    access_token: str = Field(..., description="JWT access token")
+    refresh_token: str = Field(..., description="JWT refresh token")
+    token_type: str = Field(default="bearer", description="Token type")
+    user: UserResponse = Field(..., description="Authenticated user info")
+
+
+class LogoutResponse(BaseModel):
+    """Logout response."""
+
+    status: str = Field(..., description="Logout status")

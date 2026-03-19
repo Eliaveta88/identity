@@ -12,6 +12,12 @@ LOGOUT_DESC = (
     "Action: LOGOUT"
 )
 
+LOGOUT_ALL_DESC = (
+    "Logout user from all active sessions. "
+    "Revokes every active session associated with the account. "
+    "Action: LOGOUT_ALL"
+)
+
 GET_CURRENT_USER_DESC = (
     "Get profile of currently authenticated user. "
     "Requires valid access token in Authorization header. "

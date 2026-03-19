@@ -10,6 +10,7 @@ class CfgBase(ABC):
 @dataclass
 class RedisCfg(CfgBase):
     """Redis configuration for token blacklist, rate limiting, and active sessions."""
+
     host: str = os.getenv("REDIS_HOST", "localhost")
     port: int = int(os.getenv("REDIS_PORT", "6379"))
     db: int = int(os.getenv("REDIS_DB", "0"))
@@ -25,6 +26,7 @@ class RedisCfg(CfgBase):
 @dataclass
 class PostgresCfg(CfgBase):
     """PostgreSQL configuration for identity service."""
+
     host: str = os.getenv("POSTGRES_HOST", "localhost")
     port: int = int(os.getenv("POSTGRES_PORT", "5432"))
     user: str = os.getenv("POSTGRES_USER", "user")
@@ -35,6 +37,7 @@ class PostgresCfg(CfgBase):
 @dataclass
 class JWTCfg(CfgBase):
     """JWT token configuration for access and refresh tokens."""
+
     jwt_secret: str = os.getenv("JWT_SECRET")
     jwt_algorithm: str = os.getenv("JWT_ALGORITHM", "HS256")
     jwt_exp: int = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30")

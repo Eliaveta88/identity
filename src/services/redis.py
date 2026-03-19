@@ -40,6 +40,7 @@ async def close_redis() -> None:
 # Token blacklist
 # ---------------------------------------------------------------------------
 
+
 async def blacklist_token(jti: str, ttl_seconds: int) -> None:
     """Add a JWT token ID to the blacklist with a TTL matching the token's
     remaining lifetime so it auto-expires when the token would have expired."""
@@ -56,6 +57,7 @@ async def is_token_blacklisted(jti: str) -> bool:
 # ---------------------------------------------------------------------------
 # Rate limiting  (sliding-window counter)
 # ---------------------------------------------------------------------------
+
 
 async def check_rate_limit(
     key: str,
@@ -90,6 +92,7 @@ async def reset_rate_limit(key: str) -> None:
 # ---------------------------------------------------------------------------
 # Active sessions
 # ---------------------------------------------------------------------------
+
 
 async def register_session(
     user_id: int,

@@ -1,4 +1,4 @@
-"""Common v1 HTTP endpoints."""
+"""Common v1 endpoints."""
 
 from fastapi import APIRouter
 
@@ -11,6 +11,7 @@ common_router = APIRouter(tags=["common"])
     "/health",
     response_model=HealthResponse,
     summary="Health check",
+    description="Liveness probe for service health monitoring.",
 )
 async def health() -> HealthResponse:
     return HealthResponse(status="ok", service="identity")
@@ -20,6 +21,7 @@ async def health() -> HealthResponse:
     "/ready",
     response_model=ReadyResponse,
     summary="Readiness check",
+    description="Readiness probe for deployment orchestration.",
 )
 async def ready() -> ReadyResponse:
     return ReadyResponse(status="ready", service="identity")

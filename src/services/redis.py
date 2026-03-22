@@ -123,3 +123,9 @@ async def revoke_all_sessions(user_id: int) -> None:
     """Force-logout: remove all sessions for a user."""
     r = await get_redis()
     await r.delete(f"{_SESSION}{user_id}")
+
+
+async def is_session_active(user_id: int, session_id: str) -> bool:
+    """Return True if *session_id* is still registered for *user_id*."""
+    r = await get_redis()
+    return await r.sismember(f"{_SESSION}{user_id}", session_id)

@@ -44,6 +44,12 @@ class LoginResponse(BaseModel):
     user: UserResponse = Field(..., description="Authenticated user info")
 
 
+class RefreshTokenRequest(BaseModel):
+    """Refresh token request body."""
+
+    refresh_token: str = Field(..., min_length=1, description="JWT refresh token")
+
+
 class LogoutResponse(BaseModel):
     """Logout response."""
 

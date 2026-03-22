@@ -3,6 +3,7 @@ from unittest.mock import AsyncMock, patch
 
 from fastapi import HTTPException
 
+from src.dependencies import TokenPayload
 from src.routers.v1.identity.actions import _login, _logout
 from src.routers.v1.identity.schemas import LoginRequest
 from src.config import redis_cfg
@@ -59,10 +60,8 @@ class IdentityRedisIntegrationTests(unittest.IsolatedAsyncioTestCase):
             ) as revoke_mock,
         ):
             result = await _logout(
-                user_id=1,
-                dal=dal,
-                token_jti="jti-1",
-                session_id="sess-1",
+                TokenPayload(user_id=1, jti="jti-1", session_id="sess-1"),
+                dal,
             )
         self.assertEqual(result["status"], "ok")
         blacklist_mock.assert_awaited_once()

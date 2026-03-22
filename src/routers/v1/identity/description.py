@@ -6,6 +6,12 @@ LOGIN_DESC = (
     "Action: LOGIN"
 )
 
+REFRESH_TOKEN_DESC = (
+    "Exchange a valid refresh JWT for new access and refresh tokens. "
+    "Previous refresh token is invalidated (rotation). "
+    "Action: REFRESH"
+)
+
 LOGOUT_DESC = (
     "Logout user and revoke current session token. "
     "Invalidates the access token for security. "

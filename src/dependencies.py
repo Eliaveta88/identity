@@ -8,7 +8,6 @@ import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from src.config import jwt_cfg
 from src.services.jwt_tokens import TOKEN_TYPE_ACCESS, decode_token
 from src.services.redis import is_session_active, is_token_blacklisted
 

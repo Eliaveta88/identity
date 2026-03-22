@@ -40,11 +40,15 @@ class PostgresCfg(CfgBase):
 
 @dataclass
 class JWTCfg(CfgBase):
-    """JWT token configuration for access and refresh tokens."""
+    """JWT configuration for access and refresh tokens (HS256)."""
 
-    jwt_secret: str = os.getenv("JWT_SECRET")
+    jwt_secret: str = os.getenv(
+        "JWT_SECRET",
+        "gastroroute-dev-jwt-secret-key-min-32bytes!!",
+    )
     jwt_algorithm: str = os.getenv("JWT_ALGORITHM", "HS256")
-    jwt_exp: int = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30")
+    access_token_expire_minutes: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
+    refresh_token_expire_days: int = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
 
 
 redis_cfg = RedisCfg()

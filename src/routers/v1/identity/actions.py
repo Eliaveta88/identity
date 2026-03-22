@@ -17,6 +17,7 @@ from src.routers.v1.identity.schemas import (
     LoginResponse,
     RefreshTokenRequest,
     UserCreate,
+    UserListResponse,
     UserResponse,
 )
 from src.services.jwt_tokens import (
@@ -267,3 +268,23 @@ async def _create_user(
 
     user = await dal.create(user_in)
     return UserResponse(**user)
+
+
+async def _list_users(
+    dal: UserDAL,
+    skip: int = 0,
+    limit: int = 50,
+) -> UserListResponse:
+    """List active users (paginated)."""
+    rows = await dal.list_users(skip=skip, limit=limit)
+    total = await dal.count_users()
+    items = [
+        UserResponse(
+            id=r["id"],
+            username=r["username"],
+            email=r["email"],
+            roles=r.get("roles", ["user"]),
+        )
+        for r in rows
+    ]
+    return UserListResponse(items=items, total=total, skip=skip, limit=limit)

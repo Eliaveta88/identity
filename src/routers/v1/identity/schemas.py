@@ -28,6 +28,15 @@ class UserResponse(UserBase):
         from_attributes = True
 
 
+class UserListResponse(BaseModel):
+    """Paginated list of users."""
+
+    items: List[UserResponse]
+    total: int = Field(..., ge=0, description="Total active users")
+    skip: int = Field(..., ge=0, description="Pagination offset")
+    limit: int = Field(..., ge=1, le=100, description="Page size")
+
+
 class LoginRequest(BaseModel):
     """Login request."""
 

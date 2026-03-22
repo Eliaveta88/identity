@@ -1,6 +1,6 @@
 """Data Access Layer for identity operations."""
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.routers.v1.identity.models import User
@@ -67,3 +67,22 @@ class UserDAL:
         result = await self.session.execute(stmt)
         user = result.scalar_one_or_none()
         return user.to_dict() | {"id": user.id} if user else None
+
+    async def list_users(self, skip: int = 0, limit: int = 50) -> list[dict]:
+        """List active users with pagination."""
+        stmt = (
+            select(User)
+            .where(User.is_active == True)
+            .order_by(User.id.asc())
+            .offset(skip)
+            .limit(limit)
+        )
+        result = await self.session.execute(stmt)
+        users = result.scalars().all()
+        return [u.to_dict() | {"id": u.id} for u in users]
+
+    async def count_users(self) -> int:
+        """Count active users."""
+        stmt = select(func.count(User.id)).where(User.is_active == True)
+        result = await self.session.execute(stmt)
+        return result.scalar() or 0

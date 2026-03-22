@@ -2,7 +2,7 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database.core import get_async_session
@@ -10,6 +10,7 @@ from src.dependencies import TokenPayload, get_access_token_payload, get_current
 from src.routers.v1.identity.actions import (
     _create_user,
     _get_current_user,
+    _list_users,
     _login,
     _logout,
     _logout_all,
@@ -30,6 +31,7 @@ from src.routers.v1.identity.schemas import (
     LogoutResponse,
     RefreshTokenRequest,
     UserCreate,
+    UserListResponse,
     UserResponse,
 )
 from src.routers.v1.identity.summary import (
@@ -126,6 +128,21 @@ async def logout_all(
     """Logout user from all sessions."""
     result = await _logout_all(user_id, dal)
     return LogoutResponse(**result)
+
+
+@identity_router.get(
+    "/users",
+    response_model=UserListResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Список пользователей",
+    description="Активные пользователи с пагинацией (для админки).",
+)
+async def list_users(
+    skip: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=100)] = 50,
+    dal: UserDAL = Depends(get_dal),
+) -> UserListResponse:
+    return await _list_users(dal, skip=skip, limit=limit)
 
 
 @identity_router.post(

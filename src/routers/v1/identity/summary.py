@@ -1,6 +1,7 @@
 """Summary strings for identity endpoints."""
 
 LOGIN_SUMMARY = "User login"
+REFRESH_TOKEN_SUMMARY = "Refresh access token"
 LOGOUT_SUMMARY = "User logout"
 LOGOUT_ALL_SUMMARY = "Logout user from all sessions"
 GET_CURRENT_USER_SUMMARY = "Get current user"

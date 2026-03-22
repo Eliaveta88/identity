@@ -5,13 +5,14 @@ from datetime import datetime
 from sqlalchemy import (
     Boolean,
     DateTime,
+    ForeignKey,
     Integer,
     String,
     func,
 )
-from sqlalchemy.orm import declarative_base, mapped_column
+from sqlalchemy.orm import mapped_column
 
-Base = declarative_base()
+from src.database.core import Base
 
 
 class User(Base):
@@ -54,7 +55,12 @@ class Role(Base):
     __tablename__ = "roles"
 
     id: int = mapped_column(Integer, primary_key=True)
-    user_id: int = mapped_column(Integer, nullable=False, index=True)
+    user_id: int = mapped_column(
+        Integer,
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
     role_name: str = mapped_column(
         String(50), nullable=False, index=True
     )  # admin, manager, operator, viewer
@@ -72,13 +78,18 @@ class Role(Base):
         }
 
 
-class Session(Base):
-    """User session database model."""
+class UserSession(Base):
+    """User session database model (DB-backed sessions; JWT also uses Redis)."""
 
     __tablename__ = "sessions"
 
     id: int = mapped_column(Integer, primary_key=True)
-    user_id: int = mapped_column(Integer, nullable=False, index=True)
+    user_id: int = mapped_column(
+        Integer,
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
     token: str = mapped_column(String(500), nullable=False, unique=True, index=True)
     refresh_token: str = mapped_column(String(500), nullable=False, unique=True, index=True)
     ip_address: str = mapped_column(String(45), nullable=True)

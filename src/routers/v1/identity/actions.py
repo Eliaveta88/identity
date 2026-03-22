@@ -216,6 +216,22 @@ async def _get_current_user(
     return UserResponse(**user)
 
 
+async def _get_user_by_id(user_id: int, dal: UserDAL) -> UserResponse:
+    """Public profile by id (for orders/logistics integration)."""
+    user = await dal.get_by_id(user_id)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+    return UserResponse(
+        id=user["id"],
+        username=user["username"],
+        email=user["email"],
+        roles=user.get("roles", ["user"]),
+    )
+
+
 async def _logout(
     payload: TokenPayload,
     dal: UserDAL,

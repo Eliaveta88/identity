@@ -1,5 +1,6 @@
 """Data Access Layer for identity operations."""
 
+import bcrypt
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -15,20 +16,17 @@ class UserDAL:
 
     @staticmethod
     def hash_password(password: str) -> str:
-        """Hash password for secure storage."""
-        # TODO: Use passlib or similar for proper hashing
-        # from passlib.context import CryptContext
-        # pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-        # return pwd_context.hash(password)
-        return f"hashed_{password}"
+        """Hash password with bcrypt (new users)."""
+        return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("ascii")
 
     @staticmethod
     def verify_password(plain: str, hashed: str) -> bool:
-        """Verify password against hash."""
-        # TODO: Use passlib for proper verification
-        # from passlib.context import CryptContext
-        # pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-        # return pwd_context.verify(plain, hashed)
+        """Verify password; supports bcrypt and legacy dev hashes ``hashed_<plain>``."""
+        if hashed.startswith("$2b$") or hashed.startswith("$2a$") or hashed.startswith("$2y$"):
+            try:
+                return bcrypt.checkpw(plain.encode("utf-8"), hashed.encode("ascii"))
+            except ValueError:
+                return False
         return hashed == f"hashed_{plain}"
 
     async def create(self, user_in: UserCreate) -> dict:

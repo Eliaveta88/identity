@@ -6,7 +6,7 @@ import logging
 import os
 
 from pydantic import EmailStr, TypeAdapter
-from sqlalchemy import func, select
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.routers.v1.identity.dal import UserDAL
@@ -62,3 +62,23 @@ async def ensure_initial_admin(session: AsyncSession) -> None:
     session.add(admin)
     await session.flush()
     logger.info("Seeded initial admin user '%s' (id=%s)", username, admin.id)
+
+
+# Emails that were stored before API validation matched Pydantic EmailStr.
+_LEGACY_EMAILS_TO_REPAIR: tuple[str, ...] = ("admin@local",)
+
+
+async def repair_legacy_user_emails(session: AsyncSession) -> None:
+    """Rewrite known legacy ``users.email`` values so ``UserResponse`` can serialize."""
+    for old in _LEGACY_EMAILS_TO_REPAIR:
+        new = _validated_admin_email(old)
+        if new == old:
+            continue
+        res = await session.execute(update(User).where(User.email == old).values(email=new))
+        if res.rowcount:
+            logger.info(
+                "Repaired users.email %r -> %r (%s row(s))",
+                old,
+                new,
+                res.rowcount,
+            )

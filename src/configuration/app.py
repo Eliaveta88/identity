@@ -7,9 +7,11 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.cors import CORSMiddleware
 
 from src.cors import cors_allow_credentials, cors_allow_origins
+from src.database.core import async_session_maker
 from src.middleware import db_session_middleware, request_logging_middleware
 from src.routers import Router
 from src.services.redis import close_redis, get_redis
+from src.services.seed import ensure_initial_admin
 from src.telemetry import setup_fastapi_tracing
 
 logging.basicConfig(
@@ -24,6 +26,12 @@ async def lifespan(app: FastAPI):
     logger.info("Starting up: connecting to Redis …")
     await get_redis()
     logger.info("Redis connected.")
+    try:
+        async with async_session_maker() as session:
+            await ensure_initial_admin(session)
+            await session.commit()
+    except Exception:
+        logger.exception("Initial admin seed failed; continuing startup")
     yield
     logger.info("Shutting down: closing Redis …")
     await close_redis()
